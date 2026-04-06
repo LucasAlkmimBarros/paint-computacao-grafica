@@ -257,20 +257,22 @@ class PaintApp(ctk.CTk):
     def _build_tab_transformacoes(self):
         tab = self.tabview.tab("Transformações")
         tab.grid_columnconfigure(0, weight=1)
+        tab.grid_rowconfigure(0, weight=1)
 
-        ctk.CTkButton(tab, text="Modo Seleção", command=self.on_select_mode,
-                      font=ctk.CTkFont(size=12),
-                      fg_color="#2E4A2E", hover_color="#1C301C"
-                      ).grid(row=0, column=0, padx=10, pady=(10, 4), sticky="ew")
+        # Frame rolável que ocupa toda a aba
+        sf = ctk.CTkScrollableFrame(tab, fg_color="transparent")
+        sf.grid(row=0, column=0, sticky="nsew")
+        sf.grid_columnconfigure(0, weight=1)
 
         self.lbl_selection = ctk.CTkLabel(
-            tab, text="Nenhum objeto selecionado",
-            font=ctk.CTkFont(size=11), text_color="gray50")
-        self.lbl_selection.grid(row=1, column=0, padx=10, pady=(0, 6))
+            sf, text="Arraste no canvas para selecionar objetos.",
+            font=ctk.CTkFont(size=11), text_color="gray50",
+            wraplength=200, justify="center")
+        self.lbl_selection.grid(row=0, column=0, padx=10, pady=(10, 6))
 
         # Translação
-        self._section_header(tab, row=2, text="Translação")
-        tr = ctk.CTkFrame(tab, fg_color="transparent")
+        self._section_header(sf, row=2, text="Translação")
+        tr = ctk.CTkFrame(sf, fg_color="transparent")
         tr.grid(row=3, column=0, padx=10, pady=(2, 0), sticky="ew")
         tr.grid_columnconfigure(0, weight=1)
         tr.grid_columnconfigure(1, weight=1)
@@ -281,26 +283,26 @@ class PaintApp(ctk.CTk):
         self.entry_tr_dx.grid(row=1, column=0, padx=(0, 4), pady=(2, 6))
         self.entry_tr_dy = ctk.CTkEntry(tr, placeholder_text="0", width=75)
         self.entry_tr_dy.grid(row=1, column=1, padx=(4, 0), pady=(2, 6))
-        ctk.CTkButton(tab, text="Aplicar Translação",
+        ctk.CTkButton(sf, text="Aplicar Translação",
                       command=self.on_apply_translacao, font=ctk.CTkFont(size=12)
                       ).grid(row=4, column=0, padx=10, pady=(0, 6), sticky="ew")
 
         # Rotação
-        self._section_header(tab, row=5, text="Rotação")
-        ro = ctk.CTkFrame(tab, fg_color="transparent")
+        self._section_header(sf, row=5, text="Rotação")
+        ro = ctk.CTkFrame(sf, fg_color="transparent")
         ro.grid(row=6, column=0, padx=10, pady=(2, 0), sticky="ew")
         ro.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(ro, text="Ângulo (°)", font=ctk.CTkFont(size=11),
                      text_color="gray60").grid(row=0, column=0)
         self.entry_ro_angle = ctk.CTkEntry(ro, placeholder_text="0.0", width=75)
         self.entry_ro_angle.grid(row=1, column=0, pady=(2, 6))
-        ctk.CTkButton(tab, text="Aplicar Rotação",
+        ctk.CTkButton(sf, text="Aplicar Rotação",
                       command=self.on_apply_rotacao, font=ctk.CTkFont(size=12)
                       ).grid(row=7, column=0, padx=10, pady=(0, 6), sticky="ew")
 
         # Escala
-        self._section_header(tab, row=8, text="Escala")
-        sc = ctk.CTkFrame(tab, fg_color="transparent")
+        self._section_header(sf, row=8, text="Escala")
+        sc = ctk.CTkFrame(sf, fg_color="transparent")
         sc.grid(row=9, column=0, padx=10, pady=(2, 0), sticky="ew")
         sc.grid_columnconfigure(0, weight=1)
         sc.grid_columnconfigure(1, weight=1)
@@ -311,14 +313,14 @@ class PaintApp(ctk.CTk):
         self.entry_sc_sx.grid(row=1, column=0, padx=(0, 4), pady=(2, 6))
         self.entry_sc_sy = ctk.CTkEntry(sc, placeholder_text="1.0", width=75)
         self.entry_sc_sy.grid(row=1, column=1, padx=(4, 0), pady=(2, 6))
-        ctk.CTkButton(tab, text="Aplicar Escala",
+        ctk.CTkButton(sf, text="Aplicar Escala",
                       command=self.on_apply_escala, font=ctk.CTkFont(size=12)
                       ).grid(row=10, column=0, padx=10, pady=(0, 6), sticky="ew")
 
         # Reflexão
-        self._section_header(tab, row=11, text="Reflexão")
+        self._section_header(sf, row=11, text="Reflexão")
         self.seg_reflex_eixo = ctk.CTkSegmentedButton(
-            tab,
+            sf,
             values=["Eixo X", "Eixo Y", "Eixo XY"],
             font=ctk.CTkFont(size=12),
             selected_color="#1A5276",
@@ -329,7 +331,7 @@ class PaintApp(ctk.CTk):
         )
         self.seg_reflex_eixo.set("Eixo X")
         self.seg_reflex_eixo.grid(row=12, column=0, padx=10, pady=(4, 6), sticky="ew")
-        ctk.CTkButton(tab, text="Aplicar Reflexão",
+        ctk.CTkButton(sf, text="Aplicar Reflexão",
                       command=self.on_apply_reflexao, font=ctk.CTkFont(size=12)
                       ).grid(row=13, column=0, padx=10, pady=(0, 10), sticky="ew")
 
