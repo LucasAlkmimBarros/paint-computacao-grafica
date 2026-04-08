@@ -1,13 +1,48 @@
-def execute_liang_barsky(p1, p2, xmin, ymin, xmax, ymax, draw_pixel_func=None):
+def cliptest(p, q, u1, u2):
     """
-    Algoritmo de Liang-Barsky para recorte de segmentos de reta.
-    Método: equação paramétrica — P(t) = P1 + t*(P2 - P1), 0 ≤ t ≤ 1.
+    função cliptest(p, q, u1, u2)
+    Testa uma fronteira e atualiza os parâmetros paramétricos u1 e u2.
 
     Parâmetros:
-    - p1, p2       : Tuplas (x, y) dos extremos do segmento
-    - xmin, ymin   : Canto superior-esquerdo da janela (coords de tela)
-    - xmax, ymax   : Canto inferior-direito da janela  (coords de tela)
-    - draw_pixel_func: Não utilizado — mantido para compatibilidade de assinatura
+    - p, q : coeficientes da fronteira
+    - u1   : parâmetro de entrada (t mínimo)
+    - u2   : parâmetro de saída  (t máximo)
+
+    Retorna (result, u1, u2):
+    - result=False → segmento rejeitado por esta fronteira
+    - result=True  → segmento aceito, u1/u2 possivelmente atualizados
+    """
+    result = True
+
+    if p < 0.0:                  # fora para dentro
+        r = q / p
+        if r > u2:
+            result = False
+        elif r > u1:
+            u1 = r
+
+    elif p > 0.0:                # dentro para fora
+        r = q / p
+        if r < u1:
+            result = False
+        elif r < u2:
+            u2 = r
+
+    elif q < 0.0:                # paralelo e fora da fronteira
+        result = False
+
+    return result, u1, u2
+
+
+def execute_liang_barsky(p1, p2, xmin, ymin, xmax, ymax):
+    """
+    procedimento Liang-Barski (x1, y1, x2, y2)
+    Algoritmo de recorte paramétrico de Liang-Barsky.
+
+    Parâmetros:
+    - p1, p2     : Tuplas (x, y) dos extremos do segmento
+    - xmin, ymin : Canto superior-esquerdo da janela (coords de tela)
+    - xmax, ymax : Canto inferior-direito da janela  (coords de tela)
 
     Retorna:
     - ((x1', y1'), (x2', y2')) com o segmento recortado, ou
@@ -16,41 +51,28 @@ def execute_liang_barsky(p1, p2, xmin, ymin, xmax, ymax, draw_pixel_func=None):
     x1, y1 = float(p1[0]), float(p1[1])
     x2, y2 = float(p2[0]), float(p2[1])
 
+    u1 = 0.0
+    u2 = 1.0
     dx = x2 - x1
     dy = y2 - y1
 
-    # Parâmetros p e q para cada uma das 4 fronteiras:
-    # p < 0 → direção de entrada; p > 0 → direção de saída; p = 0 → paralelo
-    p = [-dx, dx, -dy, dy]
-    q = [x1 - xmin, xmax - x1, y1 - ymin, ymax - y1]
+    result, u1, u2 = cliptest(-dx, x1 - xmin, u1, u2)
+    if result:
+        result, u1, u2 = cliptest(dx, xmax - x1, u1, u2)
+        if result:
+            result, u1, u2 = cliptest(-dy, y1 - ymin, u1, u2)
+            if result:
+                result, u1, u2 = cliptest(dy, ymax - y1, u1, u2)
+                if result:
+                    if u2 < 1.0:
+                        x2 = x1 + u2 * dx
+                        y2 = y1 + u2 * dy
+                    if u1 > 0.0:
+                        x1 = x1 + u1 * dx
+                        y1 = y1 + u1 * dy
+                    return (
+                        (int(round(x1)), int(round(y1))),
+                        (int(round(x2)), int(round(y2)))
+                    )
 
-    t_enter = 0.0   # parâmetro de entrada máximo
-    t_leave = 1.0   # parâmetro de saída mínimo
-
-    for pi, qi in zip(p, q):
-        if pi == 0:
-            # Segmento paralelo à fronteira
-            if qi < 0:
-                # Completamente fora desta fronteira
-                return None
-            # Senão, totalmente dentro nesta direção → sem restrição
-        elif pi < 0:
-            # Direção de entrada: atualiza t_enter
-            t = qi / pi
-            if t > t_leave:
-                return None   # Segmento rejeitado
-            t_enter = max(t_enter, t)
-        else:
-            # Direção de saída: atualiza t_leave
-            t = qi / pi
-            if t < t_enter:
-                return None   # Segmento rejeitado
-            t_leave = min(t_leave, t)
-
-    # Calcula os pontos recortados usando os parâmetros t_enter e t_leave
-    x1_clip = int(round(x1 + t_enter * dx))
-    y1_clip = int(round(y1 + t_enter * dy))
-    x2_clip = int(round(x1 + t_leave * dx))
-    y2_clip = int(round(y1 + t_leave * dy))
-
-    return (x1_clip, y1_clip), (x2_clip, y2_clip)
+    return None

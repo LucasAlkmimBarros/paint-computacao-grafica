@@ -1,6 +1,6 @@
 import math
 
-def execute_bresenham_circulo(center, edge_point, draw_pixel_func, canvas_oval_func=None):
+def execute_bresenham_circulo(center, edge_point, draw_pixel_func):
     """
     Algoritmo de Bresenham para rasterização de circunferências.
     Utiliza simetria de 8 pontos para máxima eficiência.
@@ -9,7 +9,6 @@ def execute_bresenham_circulo(center, edge_point, draw_pixel_func, canvas_oval_f
     - center: Tupla (xc, yc) — centro da circunferência
     - edge_point: Tupla (xe, ye) — ponto na borda (define o raio)
     - draw_pixel_func: Função de desenho de pixel. Uso: draw_pixel_func(x, y)
-    - canvas_oval_func: Parâmetro de compatibilidade (não utilizado pelo algoritmo)
     """
     xc, yc = int(center[0]), int(center[1])
     xe, ye = int(edge_point[0]), int(edge_point[1])

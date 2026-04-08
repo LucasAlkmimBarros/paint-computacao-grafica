@@ -423,11 +423,6 @@ class PaintApp(ctk.CTk):
                 kw["dash"] = dash
             self.canvas.create_line(x1, y1, x2, y2, **kw)
 
-        def draw_ov(x1, y1, x2, y2):
-            self.canvas.create_oval(
-                x1, y1, x2, y2, outline=color, width=2,
-                tags=("drawing", tag))
-
         if prim['type'] == 'line':
             if algo == 'DDA':
                 execute_dda(pts[0], pts[1], draw_px, draw_ln)
@@ -435,7 +430,7 @@ class PaintApp(ctk.CTk):
                 execute_bresenham_reta(pts[0], pts[1], draw_px)
 
         elif prim['type'] == 'circle':
-            execute_bresenham_circulo(pts[0], pts[1], draw_px, draw_ov)
+            execute_bresenham_circulo(pts[0], pts[1], draw_px)
 
         elif prim['type'] == 'polygon':
             n = len(pts)
